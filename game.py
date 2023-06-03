@@ -27,6 +27,16 @@ class SnakeGame:
         
         self.snake = snake
         self.food = food
+        
+    def draw_grid(self):
+        grid_surface = pygame.Surface((DISPLAY_WIDTH, DISPLAY_HEIGHT), pygame.SRCALPHA)  # Create a separate Surface
+
+        for x in range(0, DISPLAY_WIDTH, SNAKE_BLOCK):
+            pygame.draw.line(grid_surface, WHITE + (30,), (x, 0), (x, DISPLAY_HEIGHT))  # Draw on the separate Surface
+        for y in range(0, DISPLAY_HEIGHT, SNAKE_BLOCK):
+            pygame.draw.line(grid_surface, WHITE + (30,), (0, y), (DISPLAY_WIDTH, y))  # Draw on the separate Surface
+
+        self.display.blit(grid_surface, (0, 0))  # Blit the grid Surface onto the main Surface
 
     def display_message(self, msg, color):
         """Display a message on the screen."""
@@ -62,6 +72,7 @@ class SnakeGame:
 
             self.snake.move()
             self.display.fill(BLUE)
+            self.draw_grid()
             self.food.draw(self.display, GREEN)
 
             if self.snake.collision(DISPLAY_WIDTH, DISPLAY_HEIGHT):
