@@ -1,7 +1,7 @@
 import pygame
 from enum import Enum, auto
 import sys
-from snake import Snake,SNAKE_BLOCK,SNAKE_SPEED
+from snake import Snake,RandomSnake,AISnake,AutoSnake,SNAKE_BLOCK,SNAKE_SPEED
 from food import Food
 from style import WHITE, BLUE, GREEN, RED, DISPLAY_HEIGHT, DISPLAY_WIDTH
 pygame.init()
@@ -24,9 +24,9 @@ class SnakeGame:
     def reset(self, snake, food):
         """Reset the game state."""
         self.state = GameState.RUNNING
-        
-        self.snake = snake
-        self.food = food
+
+        self.snake = new_snake()
+        self.food = new_food()
         
     def draw_grid(self):
         grid_surface = pygame.Surface((DISPLAY_WIDTH, DISPLAY_HEIGHT), pygame.SRCALPHA)  # Create a separate Surface
@@ -37,6 +37,7 @@ class SnakeGame:
             pygame.draw.line(grid_surface, WHITE + (30,), (0, y), (DISPLAY_WIDTH, y))  # Draw on the separate Surface
 
         self.display.blit(grid_surface, (0, 0))  # Blit the grid Surface onto the main Surface
+
 
     def display_message(self, msg, color):
         """Display a message on the screen."""
@@ -58,7 +59,7 @@ class SnakeGame:
                         self.state = GameState.EXIT
                         return
                     if event.key == pygame.K_c:
-                        self.reset()
+                        self.reset(self.snake,self.food)
                         return
 
     def run(self):
@@ -82,15 +83,21 @@ class SnakeGame:
             pygame.display.update()
 
             if self.snake.head() == self.food.pos:
+                self.snake.eat_food()
                 self.food.pos = self.food.new_pos()
-                self.snake.grow()
 
             self.clock.tick(SNAKE_SPEED)
 
+def new_snake():
+    return AutoSnake(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, SNAKE_BLOCK, DISPLAY_WIDTH,DISPLAY_HEIGHT)
+
+def new_food():
+    return Food(DISPLAY_WIDTH, DISPLAY_HEIGHT, SNAKE_BLOCK)
+
 if __name__ == "__main__":
     # Initialize Snake
-    snake = Snake(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, SNAKE_BLOCK)
-    food = Food(DISPLAY_WIDTH, DISPLAY_HEIGHT, SNAKE_BLOCK)
+    snake = new_snake()
+    food = new_food()
     
     game = SnakeGame(snake,food)
     game.run()
