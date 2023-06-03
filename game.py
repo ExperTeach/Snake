@@ -1,25 +1,68 @@
 import pygame
+import pygame_widgets as pw
 from enum import Enum, auto
 import sys
-from snake import Snake,RandomSnake,AISnake,AutoSnake,SNAKE_BLOCK,SNAKE_SPEED
+from snake import (
+    Snake,
+    RandomSnake,
+    AISnake,
+    AutoSnake,
+    SNAKE_BLOCK,
+    SNAKE_SPEED,
+)
 from food import Food
-from style import WHITE, BLUE, GREEN, RED, DISPLAY_HEIGHT, DISPLAY_WIDTH
-pygame.init()
+from style import *
 
-FONT_STYLE = pygame.font.SysFont(None, 50)
 
 class GameState(Enum):
     RUNNING = auto()
     GAME_OVER = auto()
     EXIT = auto()
 
+
+class ScoreBoard:
+    def __init__(self, width, height, display: pygame.Surface, 
+                 font_style: pygame.font.Font) -> None:
+        self.width = width
+        self.height = height
+        self.font_style = font_style
+        self.display = display
+    
+    def draw_border_and_score(self, score):
+        # Create a separate Surface for the border and score:
+        surface = pygame.Surface((self.width, self.height))
+        
+        # Draw the border
+        rect = (0, 0, self.width, self.height)
+        pygame.draw.rect(surface, WHITE, rect, self.height)
+
+        # Display the score
+        score_text = self.font_style.render(f'Score: {score}', True, BLUE)
+        
+        # Blit the score text onto the border_and_score_surface
+        surface.blit(score_text, (10, 10))
+
+        # Blit the border_and_score_surface onto the main Surface
+        self.display.blit(surface, (0, 0))
+
+
 class SnakeGame:
     def __init__(self, snake, food):
-        self.border_thickness = 50  # Choose the thickness of the border
-        self.display = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT + self.border_thickness))  # Increase display height by border_thickness
+        # Increase display height by Score board height:
+        disp_size = (DISPLAY_WIDTH, DISPLAY_HEIGHT + SCORE_BOARD_HEIGHT) 
+        self.display = pygame.display.set_mode(disp_size)
+        
         pygame.display.set_caption('Snake Game')
+        
         self.clock = pygame.time.Clock()
         self.score = 0
+        
+        # Set Fontstyle:
+        self.font_style = pygame.font.SysFont(None, 50)
+        
+        # Initialize Score Board:
+        self.score_board =  ScoreBoard(DISPLAY_WIDTH, SCORE_BOARD_HEIGHT, 
+                                       self.display, self.font_style)
 
         self.reset(snake, food)
         
@@ -29,34 +72,35 @@ class SnakeGame:
         self.score = 0
         self.snake = new_snake()
         self.food = new_food()
-        
-    def draw_border_and_score(self):
-        border_and_score_surface = pygame.Surface((DISPLAY_WIDTH, self.border_thickness))  # Create a separate Surface for the border and score
-        #border_and_score_surface.fill(BLUE)  # Fill the surface with blue
-
-        # Draw the border
-        pygame.draw.rect(border_and_score_surface, WHITE, (0, 0, DISPLAY_WIDTH, self.border_thickness), self.border_thickness)
-
-        # Display the score
-        score_text = FONT_STYLE.render(f'Score: {self.score}', True, BLUE)
-        border_and_score_surface.blit(score_text, (10, 10))  # Blit the score text onto the border_and_score_surface
-
-        self.display.blit(border_and_score_surface, (0, 0))  # Blit the border_and_score_surface onto the main Surface
 
     def draw_grid(self):
-        grid_surface = pygame.Surface((DISPLAY_WIDTH, DISPLAY_HEIGHT), pygame.SRCALPHA)  # Create a separate Surface
-
+        # Create a separate Surface:
+        grid_surface = pygame.Surface((DISPLAY_WIDTH, DISPLAY_HEIGHT),
+                                      pygame.SRCALPHA)
+        grid_color = WHITE + (30,) # Added alpha channel
+        
+        # Vertical grid-lines:
         for x in range(0, DISPLAY_WIDTH, SNAKE_BLOCK):
-            pygame.draw.line(grid_surface, WHITE + (30,), (x, 0), (x, DISPLAY_HEIGHT))  # Draw on the separate Surface
+            # Draw on the separate Surface
+            pygame.draw.line(grid_surface, 
+                             grid_color, 
+                             (x, 0), 
+                             (x, DISPLAY_HEIGHT))
+        
+        # Horizontal grid-lines:
         for y in range(0, DISPLAY_HEIGHT, SNAKE_BLOCK):
-            pygame.draw.line(grid_surface, WHITE + (30,), (0, y), (DISPLAY_WIDTH, y))  # Draw on the separate Surface
+            pygame.draw.line(grid_surface, 
+                             grid_color, 
+                             (0, y), 
+                             (DISPLAY_WIDTH, y))
 
-        self.display.blit(grid_surface, (0, 0))  # Blit the grid Surface onto the main Surface
+        # Blit the grid Surface onto the main Surface
+        self.display.blit(grid_surface, (0, SCORE_BOARD_HEIGHT))
 
 
     def display_message(self, msg, color):
         """Display a message on the screen."""
-        message_surface = FONT_STYLE.render(msg, True, color)
+        message_surface = self.font_style.render(msg, True, color)
         message_rect = message_surface.get_rect()
         message_rect.center = (DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
         self.display.blit(message_surface, message_rect)
@@ -68,6 +112,7 @@ class SnakeGame:
             self.display.fill(BLUE)
             self.display_message("You Lost! Press C-Play Again or Q-Quit", RED)
             pygame.display.update()
+            
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
@@ -89,13 +134,13 @@ class SnakeGame:
             self.snake.move()
             self.display.fill(BLUE)
             self.draw_grid()
-            self.draw_border_and_score()  # Draw the border and score
-            self.food.draw(self.display, GREEN, self.border_thickness)
+            self.score_board.draw_border_and_score(self.score)  # Draw the border and score
+            self.food.draw(self.display, GREEN, SCORE_BOARD_HEIGHT)
 
             if self.snake.collision(DISPLAY_WIDTH, DISPLAY_HEIGHT):
                 self.game_over_screen()
 
-            self.snake.draw(self.display, WHITE, self.border_thickness)
+            self.snake.draw(self.display, WHITE, SCORE_BOARD_HEIGHT)
             pygame.display.update()
 
             if self.snake.head() == self.food.pos:
@@ -106,15 +151,27 @@ class SnakeGame:
             self.clock.tick(SNAKE_SPEED)
 
 def new_snake():
-    return AutoSnake(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, SNAKE_BLOCK, DISPLAY_WIDTH,DISPLAY_HEIGHT)
+    start_x = DISPLAY_WIDTH / 2
+    start_y = DISPLAY_HEIGHT / 2
+    # return AutoSnake(start_x, start_y, SNAKE_BLOCK, DISPLAY_WIDTH, DISPLAY_HEIGHT)
+    return Snake(start_x, start_y, SNAKE_BLOCK)
 
 def new_food():
     return Food(DISPLAY_WIDTH, DISPLAY_HEIGHT, SNAKE_BLOCK)
 
-if __name__ == "__main__":
+
+def main():
+    pygame.init()
+    
     # Initialize Snake
     snake = new_snake()
     food = new_food()
     
-    game = SnakeGame(snake,food)
+    
+    # Initialize game and run:
+    game = SnakeGame(snake, food)
     game.run()
+
+
+if __name__ == "__main__":
+    main()
