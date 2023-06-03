@@ -55,10 +55,10 @@ class Snake:
             return True
         return False
 
-    def draw(self, surface, color):
+    def draw(self, surface, color, border_thickness):
         for x, y in self.body:
-            pygame.draw.rect(surface, color, [x, y, self.block_size, self.block_size])
-    
+            pygame.draw.rect(surface, color, [x, y + border_thickness, self.block_size, self.block_size])  # Shift y-coordinate by border_thickness
+
     def self_collision(self):
         return self.head() in self.body[:-1]
     

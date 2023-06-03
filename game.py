@@ -14,20 +14,35 @@ class GameState(Enum):
     EXIT = auto()
 
 class SnakeGame:
-    def __init__(self, snake,food):
-        self.display = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
+    def __init__(self, snake, food):
+        self.border_thickness = 50  # Choose the thickness of the border
+        self.display = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT + self.border_thickness))  # Increase display height by border_thickness
         pygame.display.set_caption('Snake Game')
         self.clock = pygame.time.Clock()
+        self.score = 0
 
-        self.reset(snake,food)
+        self.reset(snake, food)
         
     def reset(self, snake, food):
         """Reset the game state."""
         self.state = GameState.RUNNING
-
+        self.score = 0
         self.snake = new_snake()
         self.food = new_food()
         
+    def draw_border_and_score(self):
+        border_and_score_surface = pygame.Surface((DISPLAY_WIDTH, self.border_thickness))  # Create a separate Surface for the border and score
+        #border_and_score_surface.fill(BLUE)  # Fill the surface with blue
+
+        # Draw the border
+        pygame.draw.rect(border_and_score_surface, WHITE, (0, 0, DISPLAY_WIDTH, self.border_thickness), self.border_thickness)
+
+        # Display the score
+        score_text = FONT_STYLE.render(f'Score: {self.score}', True, BLUE)
+        border_and_score_surface.blit(score_text, (10, 10))  # Blit the score text onto the border_and_score_surface
+
+        self.display.blit(border_and_score_surface, (0, 0))  # Blit the border_and_score_surface onto the main Surface
+
     def draw_grid(self):
         grid_surface = pygame.Surface((DISPLAY_WIDTH, DISPLAY_HEIGHT), pygame.SRCALPHA)  # Create a separate Surface
 
@@ -74,16 +89,18 @@ class SnakeGame:
             self.snake.move()
             self.display.fill(BLUE)
             self.draw_grid()
-            self.food.draw(self.display, GREEN)
+            self.draw_border_and_score()  # Draw the border and score
+            self.food.draw(self.display, GREEN, self.border_thickness)
 
             if self.snake.collision(DISPLAY_WIDTH, DISPLAY_HEIGHT):
                 self.game_over_screen()
 
-            self.snake.draw(self.display, WHITE)
+            self.snake.draw(self.display, WHITE, self.border_thickness)
             pygame.display.update()
 
             if self.snake.head() == self.food.pos:
                 self.snake.eat_food()
+                self.score += 1
                 self.food.pos = self.food.new_pos()
 
             self.clock.tick(SNAKE_SPEED)

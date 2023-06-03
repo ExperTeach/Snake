@@ -13,5 +13,5 @@ class Food:
         food_y = round(random.randrange(0, self.y_range - self.block_size) / 10.0) * 10.0
         return [food_x, food_y]
 
-    def draw(self, surface, color):
-        pygame.draw.rect(surface, color, [self.pos[0], self.pos[1], self.block_size, self.block_size])
+    def draw(self, surface, color, border_thickness):
+        pygame.draw.rect(surface, color, [self.pos[0], self.pos[1] + border_thickness, self.block_size, self.block_size])  # Shift y-coordinate by border_thickness
