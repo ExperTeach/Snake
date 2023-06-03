@@ -2,7 +2,7 @@ import pygame
 from enum import Enum,auto
 
 SNAKE_BLOCK = 10
-SNAKE_SPEED = 30
+SNAKE_SPEED = 25
 
 class Direction(Enum):
     UP = auto()
