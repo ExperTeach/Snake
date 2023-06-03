@@ -3,7 +3,7 @@ from enum import Enum,auto
 import random
 
 SNAKE_BLOCK = 10
-SNAKE_SPEED = 25
+SNAKE_SPEED = 15
 
 class Direction(Enum):
     UP = auto()
@@ -69,7 +69,6 @@ class Snake:
         self.grow()
     
 class RandomSnake(Snake):        
-    
     def __init__(self, x, y, block_size):
         self.body = [[x, y]]
         self.block_size = block_size
@@ -77,8 +76,6 @@ class RandomSnake(Snake):
     
     def check_potential_collision(self, position:list):
         return position in self.body[:-1]
-    
-
     
     def move(self):
         potential_collision = True
@@ -172,6 +169,5 @@ class AutoSnake(Snake):
             
             
 class AISnake(Snake):
-    
     def move(self):
         return super().move()
