@@ -19,7 +19,7 @@ class Snake:
         self.direction = Direction.NONE  # initial direction
 
     def head(self):
-        return self.body[-1]
+        return self.body[0]
     
     def eat_food(self):
         self.grow()
@@ -63,7 +63,7 @@ class Snake:
             pygame.draw.rect(surface, color, [x, y + border_thickness, self.block_size, self.block_size])  # Shift y-coordinate by border_thickness
 
     def self_collision(self):
-        return self.head() in self.body[:-1]
+        return self.head() in self.body[1:]
     
     def collision(self,width,height):
         return self.self_collision() or self.is_out_of_bounds(width,height)
