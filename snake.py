@@ -20,9 +20,12 @@ class Snake:
 
     def head(self):
         return self.body[-1]
+    
+    def eat_food(self):
+        self.grow()
 
     def grow(self):
-        self.body.append(list(self.head()))
+        self.body.append(self.head())
         
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -65,9 +68,7 @@ class Snake:
     def collision(self,width,height):
         return self.self_collision() or self.is_out_of_bounds(width,height)
     
-    def eat_food(self):
-        self.grow()
-    
+
 class RandomSnake(Snake):        
     def __init__(self, x, y, block_size):
         self.body = [[x, y]]

@@ -1,5 +1,5 @@
 import pygame
-import pygame_widgets as pw
+import pygame_widgets.button as pw_button
 from enum import Enum, auto
 import sys
 from snake import (
@@ -27,23 +27,37 @@ class ScoreBoard:
         self.height = height
         self.font_style = font_style
         self.display = display
+        
+        # Create a separate Surface for the border and score:
+        self.surface = pygame.Surface((self.width, self.height))
+        
+        # TODO: Buttons for leaderboard, options and quit:
+        self.button = pw_button.Button(self.surface, 
+                                       DISPLAY_WIDTH / 2, 0, 
+                                       200, self.height,
+                                       text='Leaderboard',
+                                       fontSize=50, margin=20,
+                                       inactiveColour=(255, 0, 0),
+                                       pressedColour=(0, 255, 0), radius=5,
+                                       onClick=lambda: print('Click'))
     
     def draw_border_and_score(self, score):
-        # Create a separate Surface for the border and score:
-        surface = pygame.Surface((self.width, self.height))
-        
         # Draw the border
         rect = (0, 0, self.width, self.height)
-        pygame.draw.rect(surface, WHITE, rect, self.height)
+        pygame.draw.rect(self.surface, WHITE, rect, self.height)
 
         # Display the score
         score_text = self.font_style.render(f'Score: {score}', True, BLUE)
         
+        events = pygame.event.get()
+        self.button.listen(events)
+        self.button.draw()
+        
         # Blit the score text onto the border_and_score_surface
-        surface.blit(score_text, (10, 10))
+        self.surface.blit(score_text, (10, 10))
 
         # Blit the border_and_score_surface onto the main Surface
-        self.display.blit(surface, (0, 0))
+        self.display.blit(self.surface, (0, 0))
 
 
 class SnakeGame:
@@ -132,9 +146,11 @@ class SnakeGame:
                     self.snake.handle_event(event)
 
             self.snake.move()
+            
+            # Inefficient drawing!!!
             self.display.fill(BLUE)
-            self.draw_grid()
             self.score_board.draw_border_and_score(self.score)  # Draw the border and score
+            self.draw_grid()
             self.food.draw(self.display, GREEN, SCORE_BOARD_HEIGHT)
 
             if self.snake.collision(DISPLAY_WIDTH, DISPLAY_HEIGHT):
