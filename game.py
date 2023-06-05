@@ -32,14 +32,14 @@ class ScoreBoard:
         self.surface = pygame.Surface((self.width, self.height))
         
         # TODO: Buttons for leaderboard, options and quit:
-        self.button = pw_button.Button(self.surface, 
-                                       DISPLAY_WIDTH / 2, 0, 
-                                       200, self.height,
-                                       text='Leaderboard',
-                                       fontSize=50, margin=20,
-                                       inactiveColour=(255, 0, 0),
-                                       pressedColour=(0, 255, 0), radius=5,
-                                       onClick=lambda: print('Click'))
+        #self.button = pw_button.Button(self.surface, 
+        #                               DISPLAY_WIDTH / 2, 0, 
+        #                               200, self.height,
+        #                               text='Leaderboard',
+        #                               fontSize=50, margin=20,
+        #                               inactiveColour=(255, 0, 0),
+        #                               pressedColour=(0, 255, 0), radius=5,
+        #                               onClick=lambda: print('Click'))
     
     def draw_border_and_score(self, score):
         # Draw the border
@@ -50,8 +50,8 @@ class ScoreBoard:
         score_text = self.font_style.render(f'Score: {score}', True, BLUE)
         
         events = pygame.event.get()
-        self.button.listen(events)
-        self.button.draw()
+        #self.button.listen(events)
+        #self.button.draw()
         
         # Blit the score text onto the border_and_score_surface
         self.surface.blit(score_text, (10, 10))
@@ -167,8 +167,8 @@ class SnakeGame:
             self.clock.tick(SNAKE_SPEED)
 
 def new_snake():
-    start_x = DISPLAY_WIDTH / 2
-    start_y = DISPLAY_HEIGHT / 2
+    start_x = ((DISPLAY_WIDTH / 2 ) / SNAKE_BLOCK ) * SNAKE_BLOCK
+    start_y = int((DISPLAY_HEIGHT / 2 ) / SNAKE_BLOCK ) * SNAKE_BLOCK
     # return AutoSnake(start_x, start_y, SNAKE_BLOCK, DISPLAY_WIDTH, DISPLAY_HEIGHT)
     return Snake(start_x, start_y, SNAKE_BLOCK)
 
