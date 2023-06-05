@@ -1,7 +1,7 @@
 import pygame
-import pygame_widgets.button as pw_button
+#import pygame_widgets.button as pw_button
+import matplotlib.pyplot as plt
 from enum import Enum, auto
-import sys
 from snake import (
     Snake,
     RandomSnake,
@@ -32,14 +32,14 @@ class ScoreBoard:
         self.surface = pygame.Surface((self.width, self.height))
         
         # TODO: Buttons for leaderboard, options and quit:
-        self.button = pw_button.Button(self.surface, 
-                                       DISPLAY_WIDTH / 2, 0, 
-                                       200, self.height,
-                                       text='Leaderboard',
-                                       fontSize=50, margin=20,
-                                       inactiveColour=(255, 0, 0),
-                                       pressedColour=(0, 255, 0), radius=5,
-                                       onClick=lambda: print('Click'))
+        # self.button = pw_button.Button(self.surface, 
+        #                                DISPLAY_WIDTH / 2, 0, 
+        #                                200, self.height,
+        #                                text='Leaderboard',
+        #                                fontSize=50, margin=20,
+        #                                inactiveColour=(255, 0, 0),
+        #                                pressedColour=(0, 255, 0), radius=5,
+        #                                onClick=lambda: print('Click'))
     
     def draw_border_and_score(self, score):
         # Draw the border
@@ -49,9 +49,9 @@ class ScoreBoard:
         # Display the score
         score_text = self.font_style.render(f'Score: {score}', True, BLUE)
         
-        events = pygame.event.get()
-        self.button.listen(events)
-        self.button.draw()
+        # events = pygame.event.get()
+        # self.button.listen(events)
+        # self.button.draw()
         
         # Blit the score text onto the border_and_score_surface
         self.surface.blit(score_text, (10, 10))
@@ -78,6 +78,12 @@ class SnakeGame:
         self.score_board =  ScoreBoard(DISPLAY_WIDTH, SCORE_BOARD_HEIGHT, 
                                        self.display, self.font_style)
 
+        # Scores:
+        self.scores = []
+        
+        # Start with an empty plot window:
+        self.show_evaluation()
+        
         self.reset(snake, food)
         
     def reset(self, snake, food):
@@ -119,9 +125,36 @@ class SnakeGame:
         message_rect.center = (DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
         self.display.blit(message_surface, message_rect)
 
+    def show_evaluation(self):
+        self.scores.append(self.score)
+        # print(self.scores)
+        
+        # Clear the plot so the line color stays the same:
+        plt.clf()
+        plt.title("Score Evaluation")
+        
+        # Set ticks of the axes (might need adaptive range fitting...)
+        plt.xticks(range(len(self.scores)))
+        plt.yticks(range(max(self.scores) + 1))
+        
+        # Plot the scores as a line:
+        plt.plot(self.scores)
+        
+        # Set labelnames:
+        plt.xlabel("number of tries")
+        plt.ylabel("score")
+        
+        # Draw and show the plot:
+        plt.draw()
+        plt.show(block=False) # ensures to not block the game
+    
     def game_over_screen(self):
         """Display the game over screen and handle user input."""
         self.state = GameState.GAME_OVER
+        
+        # Show the evaluation of continous playing:
+        self.show_evaluation()
+        
         while self.state == GameState.GAME_OVER:
             self.display.fill(BLUE)
             self.display_message("You Lost! Press C-Play Again or Q-Quit", RED)
@@ -147,9 +180,11 @@ class SnakeGame:
 
             self.snake.move()
             
-            # Inefficient drawing!!!
+            # TODO: Inefficient drawing!!!
             self.display.fill(BLUE)
-            self.score_board.draw_border_and_score(self.score)  # Draw the border and score
+            
+            # Draw the border and score
+            self.score_board.draw_border_and_score(self.score)
             self.draw_grid()
             self.food.draw(self.display, GREEN, SCORE_BOARD_HEIGHT)
 
@@ -166,11 +201,13 @@ class SnakeGame:
 
             self.clock.tick(SNAKE_SPEED)
 
+
 def new_snake():
     start_x = DISPLAY_WIDTH / 2
     start_y = DISPLAY_HEIGHT / 2
     # return AutoSnake(start_x, start_y, SNAKE_BLOCK, DISPLAY_WIDTH, DISPLAY_HEIGHT)
     return Snake(start_x, start_y, SNAKE_BLOCK)
+
 
 def new_food():
     return Food(DISPLAY_WIDTH, DISPLAY_HEIGHT, SNAKE_BLOCK)
@@ -182,7 +219,6 @@ def main():
     # Initialize Snake
     snake = new_snake()
     food = new_food()
-    
     
     # Initialize game and run:
     game = SnakeGame(snake, food)
