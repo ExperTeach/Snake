@@ -9,8 +9,10 @@ class Food:
         self.pos = self.new_pos()
 
     def new_pos(self):
-        food_x = round(random.randrange(0, self.x_range - self.block_size) / 10.0) * 10.0
-        food_y = round(random.randrange(0, self.y_range - self.block_size) / 10.0) * 10.0
+        x_number_of_blocks = (self.x_range - self.block_size) / self.block_size
+        y_number_of_blocks = (self.x_range - self.block_size) / self.block_size
+        food_x = round(random.randrange(0,x_number_of_blocks) )* self.block_size
+        food_y = round(random.randrange(0,y_number_of_blocks) )* self.block_size
         return [food_x, food_y]
 
     def draw(self, surface, color, border_thickness):
