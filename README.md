@@ -2,6 +2,8 @@
 
 Welcome to the Python Snake Game, a fun and engaging project where you can pit different types of AI-controlled snakes against each other. This game includes different types of snakes and is open to support even more algorithms. The `ManualSnake` has to be operated by the user. The `RandomSnake` moves randomly across the game grid, which shows major flaws as a strategy. The `AutoSnake`while the `AISnake` uses advanced reinforcement learning to make its moves.
 
+test
+
 ## Table of Contents
 
 - [Python Snake Game](#python-snake-game)
