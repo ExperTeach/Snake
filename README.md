@@ -36,6 +36,15 @@ To play the Python Snake Game, follow these steps:
 python main.py
 ```
 
+To specify which snake implementation should be used start the game with one of the following arguments:
+
+```bash
+python main.py --gamestyle="ai-snake"
+python main.py --gamestyle="auto-snake"
+python main.py --gamestyle="random-snake"
+python main.py --gamestyle="snake"
+```
+
 ## Snake Modules
 
 ### RandomSnake
@@ -51,9 +60,6 @@ The `AISnake` class uses reinforcement learning to control the snake's movements
 If you want to contribute to the Python Snake Game, follow these steps:
 
 1. Fork this repository.
-2. Create a branch: `git checkout -b <branch_name>`.
-3. Make your changes and commit them: `git commit -m '<commit_message>'`
-4. Push to the original branch: `git push origin <project_name>/<location>`
-5. Create the pull request.
-
-Alternatively, see the GitHub documentation on [creating a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
+2. Make Changes and commit them to your fork
+3. Push to the fork Github repository
+4. Create the pull request with the ExperTeach/Snake repository
