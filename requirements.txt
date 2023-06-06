@@ -1,0 +1,4 @@
+pygame_widgets
+pygame
+matplotlib
+numpy
