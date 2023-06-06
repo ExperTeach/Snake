@@ -1,5 +1,5 @@
 import pygame
-from helper.style import *
+from helper.constants import *
 
 class ScoreBoard:
     def __init__(self, width, height, display: pygame.Surface, 
@@ -25,3 +25,4 @@ class ScoreBoard:
 
         # Blit the border_and_score_surface onto the main Surface
         self.display.blit(self.surface, (0, 0))
+        

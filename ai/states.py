@@ -1,14 +1,17 @@
 from game.directions import Direction
-from helper.style import *
+from helper.constants import *
 
 class State:
-    # Using list comprehensions to initialize state_space
-    state_space = [(x, y, direction, danger)
-        for x in range(0, int(DISPLAY_WIDTH - BLOCK_SIZE / BLOCK_SIZE) * BLOCK_SIZE, BLOCK_SIZE)
-        for y in range(0, int(DISPLAY_HEIGHT - BLOCK_SIZE / BLOCK_SIZE) * BLOCK_SIZE, BLOCK_SIZE)
-        for direction in Direction
-        for danger in [0, 1]]
-
     @staticmethod
     def states():
-        return State.state_space
+        # Using list comprehensions to initialize state_space
+        state_space = [(x, y, direction, danger)
+            for x in range(0, DISPLAY_WIDTH + 1, BLOCK_SIZE)
+            for y in range(0, DISPLAY_HEIGHT + 1, BLOCK_SIZE)
+            for direction in Direction
+            for danger in [0, 1]]
+        return state_space
+
+
+if __name__ == "__main__":
+    State.states()

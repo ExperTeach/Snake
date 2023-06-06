@@ -33,7 +33,7 @@ pip install -r requirements.txt
 To play the Python Snake Game, follow these steps:
 
 ```bash
-python game.py
+python main.py
 ```
 
 ## Snake Modules

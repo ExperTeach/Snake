@@ -1,9 +1,10 @@
 from helper.model_parser import ModelParser
-from helper.style import BLOCK_SIZE
+from helper.constants import BLOCK_SIZE
 from ai.actions import Action
 from snakes.snake import *
 from ai.states import State
 import numpy as np
+import random
 
 class AISnake(Snake):
     

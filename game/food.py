@@ -1,6 +1,6 @@
 import pygame
 import random
-from helper.style import BLOCK_SIZE
+from helper.constants import BLOCK_SIZE
 
 class Food:
     def __init__(self, x_range, y_range):

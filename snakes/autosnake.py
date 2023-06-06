@@ -14,6 +14,7 @@ class AutoSnake(Snake):
     def spiral_move(self):
         # Define the spiral direction order
         direction_order = {
+            Direction.NONE: [Direction.RIGHT, Direction.UP, Direction.LEFT, Direction.DOWN],
             Direction.UP: [Direction.RIGHT, Direction.UP, Direction.LEFT, Direction.DOWN],
             Direction.RIGHT: [Direction.DOWN, Direction.RIGHT, Direction.UP, Direction.LEFT],
             Direction.DOWN: [Direction.LEFT, Direction.DOWN, Direction.RIGHT, Direction.UP],
@@ -68,3 +69,5 @@ class AutoSnake(Snake):
             self.spiral_move()  # Calls the spiral move method
         else:
             self.move_towards_target()
+            
+        return None,None,None

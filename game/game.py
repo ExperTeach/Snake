@@ -4,9 +4,10 @@ from helper.model_parser import ModelParser
 from enum import Enum, auto
 from game.food import Food
 from game.score_board import ScoreBoard
-from helper.style import *
+from helper.constants import *
 from snakes.aisnake import AISnake
 from snakes.autosnake import AutoSnake
+from snakes.randomsnake import RandomSnake
 from snakes.snake import Snake
 
 class GameState(Enum):
@@ -15,8 +16,7 @@ class GameState(Enum):
     EXIT = auto()
 
 class SnakeGame:
-    def __init__(self, snake, food,autoplay=False, gamestyle="ai-snake"):
-        self.autoplay = autoplay
+    def __init__(self, snake, food, gamestyle):
         self.gamestyle = gamestyle
         # Increase display height by Score board height:
         disp_size = (DISPLAY_WIDTH, DISPLAY_HEIGHT + SCORE_BOARD_HEIGHT) 
@@ -33,8 +33,13 @@ class SnakeGame:
         # Initialize Score Board:
         self.score_board =  ScoreBoard(DISPLAY_WIDTH, SCORE_BOARD_HEIGHT, 
                                        self.display, self.font_style)
+
         # Scores:
         self.scores = []
+        self.tries_step = 1
+        self.max_tries_range = 10
+        self.max_scores_range = 10 
+        plt.rcParams['backend'] = "Qt5Agg"
         
         # Start with an empty plot window:
         self.show_evaluation()
@@ -88,8 +93,11 @@ class SnakeGame:
         plt.title("Score Evaluation")
         
         # Set ticks of the axes (might need adaptive range fitting...)
-        plt.xticks(range(len(self.scores)))
-        plt.yticks(range(max(self.scores) + 1))
+        if len(self.scores) > self.max_tries_range:
+            self.max_tries_range *= 2
+            self.tries_step *= 2
+        plt.xticks(range(0, len(self.scores), self.tries_step))
+        plt.yticks(range(max(self.scores) + 1)) 
         
         # Plot the scores as a line:
         plt.plot(self.scores)
@@ -106,20 +114,26 @@ class SnakeGame:
     def game_over_screen(self):
         """Display the game over screen and handle user input."""
         self.state = GameState.GAME_OVER
-            # to store:
-        with open('ai/model/q_table.json', 'w') as file:
-            ModelParser.store_q_table(file,AISnake.q_table)
-        
+
+            
         # Show the evaluation of continous playing:
         self.show_evaluation()
-        while self.state == GameState.GAME_OVER:
+            
+        # Store Q-Table:
+        if self.gamestyle == "ai-snake":
+            with open('ai/model/q_table.json', 'w') as file:
+                ModelParser.store_q_table(file,AISnake.q_table)
 
             AISnake.epsilon *= 0.95
             self.epsilon = max(AISnake.epsilon, 0.01)
             self.reset(self.snake,self.food)
             print("Epsilon is: ",self.epsilon)
-            # End if argument autoplay is set
-            if self.autoplay == True:
+        while self.state == GameState.GAME_OVER:
+
+            # Restart on AI
+            if self.gamestyle == "snake-ai" \
+                or self.gamestyle == "auto-snake" \
+                or self.gamestyle == "random-snake":
                 return
             
             # Game Over Mode
@@ -153,6 +167,10 @@ class SnakeGame:
         else:
             if self.snake.collision(DISPLAY_WIDTH,DISPLAY_HEIGHT):
                 self.game_over_screen()
+            elif self.snake.head() == self.food.pos:
+                self.snake.eat_food()
+                self.score += 1
+                self.food.pos = self.food.new_pos()
 
     def run(self):
         """Main game loop."""
@@ -162,10 +180,9 @@ class SnakeGame:
                     self.state = GameState.EXIT
                 else:
                     self.snake.handle_event(event)
-
+                    
             current_state, action, new_state = self.snake.move()
             self.verify_movement(current_state, action, new_state)
-
             
             # Inefficient drawing!!!
             self.display.fill(BLUE)
@@ -174,24 +191,34 @@ class SnakeGame:
             self.food.draw(self.display, GREEN, SCORE_BOARD_HEIGHT)
             self.snake.draw(self.display, WHITE, SCORE_BOARD_HEIGHT)
             pygame.display.update()
+            
+            self.clock.tick(GAME_SPEED_AI) if self.gamestyle == "ai-snake" else self.clock.tick(GAME_SPEED)
 
-            self.clock.tick(GAME_SPEED)
 
-def new_snake():
+def new_snake(gamestyle):
     # return AutoSnake(start_x, start_y, SNAKE_BLOCK, DISPLAY_WIDTH, DISPLAY_HEIGHT)
-    return AISnake(start_x, start_y, BLOCK_SIZE)
+    start_x, start_y, BLOCK_SIZE
+    if gamestyle=="snake":
+        return Snake(start_x,start_y,BLOCK_SIZE)
+    elif gamestyle=="auto-snake":
+        return AutoSnake(start_x,start_y,BLOCK_SIZE,DISPLAY_WIDTH,DISPLAY_HEIGHT)
+    elif gamestyle=="random-snake":
+        return RandomSnake(start_x,start_y,BLOCK_SIZE)
+    elif gamestyle == "ai-snake":
+        return AISnake(start_x, start_y, BLOCK_SIZE)
+    else:
+        raise 
 
 def new_food():
     return Food(DISPLAY_WIDTH, DISPLAY_HEIGHT)
 
-def main(autoplay, gamestyle):
+def main(gamestyle):
     pygame.init()
     
     # Initialize Snake     
-    snake = AISnake(start_x, start_y, BLOCK_SIZE)   
-    #snake = new_snake()
+    snake = new_snake(gamestyle)   
     food = new_food()
     
     # Initialize game and run:
-    game = SnakeGame(snake, food)
+    game = SnakeGame(snake, food,gamestyle)
     game.run()
