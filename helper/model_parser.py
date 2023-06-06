@@ -7,8 +7,12 @@ class ModelParser():
     
     @staticmethod
     def load_q_table(file):
-        # load the stringified dictionary as a basic data type dictionary
-        q_table_raw = json.loads(file.read())
+        try:
+            # load the stringified dictionary as a basic data type dictionary
+            q_table_raw = json.loads(file.read())
+        except:
+            q_table_raw = {}
+            
 
         # reconstruct the keys and values with enum types
         q_table = {}
@@ -29,13 +33,6 @@ class ModelParser():
             # for the values, map the Direction string to the enum
             actions = {Direction[action.split(".")[1]]: value for action, value in v.items()}
             q_table[(x, y, direction, danger)] = actions
-        
-        # Initial State of the Q-Table as Fallback if file is empty    
-        if len(q_table) == 0:
-            for state in State.states():
-                q_table[state] = {}
-                for action in Action.actions():
-                    q_table[state][action] = 0
         
         return q_table
     

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from helper.model_parser import ModelParser
 from enum import Enum, auto
 from game.food import Food
+from game.score_board import ScoreBoard
 from helper.style import *
 from snakes.aisnake import AISnake
 from snakes.autosnake import AutoSnake
@@ -12,33 +13,6 @@ class GameState(Enum):
     RUNNING = auto()
     GAME_OVER = auto()
     EXIT = auto()
-
-
-class ScoreBoard:
-    def __init__(self, width, height, display: pygame.Surface, 
-                 font_style: pygame.font.Font) -> None:
-        self.width = width
-        self.height = height
-        self.font_style = font_style
-        self.display = display
-        
-        # Create a separate Surface for the border and score:
-        self.surface = pygame.Surface((self.width, self.height))
-    
-    def draw_border_and_score(self, score):
-        # Draw the border
-        rect = (0, 0, self.width, self.height)
-        pygame.draw.rect(self.surface, WHITE, rect, self.height)
-
-        # Display the score
-        score_text = self.font_style.render(f'Score: {score}', True, BLUE)
-        
-        # Blit the score text onto the border_and_score_surface
-        self.surface.blit(score_text, (10, 10))
-
-        # Blit the border_and_score_surface onto the main Surface
-        self.display.blit(self.surface, (0, 0))
-
 
 class SnakeGame:
     def __init__(self, snake, food,autoplay=False, gamestyle="ai-snake"):
@@ -127,6 +101,7 @@ class SnakeGame:
         # Draw and show the plot:
         plt.draw()
         plt.show(block=False) # ensures to not block the game
+        plt.pause(.1)
         
     def game_over_screen(self):
         """Display the game over screen and handle user input."""
@@ -139,10 +114,10 @@ class SnakeGame:
         self.show_evaluation()
         while self.state == GameState.GAME_OVER:
 
-            AISnake.epsilon *= 0.9
-            self.epsilon = max(AISnake.epsilon, 0.15)
+            AISnake.epsilon *= 0.95
+            self.epsilon = max(AISnake.epsilon, 0.01)
             self.reset(self.snake,self.food)
-            
+            print("Epsilon is: ",self.epsilon)
             # End if argument autoplay is set
             if self.autoplay == True:
                 return
@@ -209,7 +184,7 @@ def new_snake():
 def new_food():
     return Food(DISPLAY_WIDTH, DISPLAY_HEIGHT)
 
-def main():
+def main(autoplay, gamestyle):
     pygame.init()
     
     # Initialize Snake     

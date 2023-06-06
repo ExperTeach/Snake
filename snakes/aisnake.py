@@ -2,19 +2,27 @@ from helper.model_parser import ModelParser
 from helper.style import BLOCK_SIZE
 from ai.actions import Action
 from snakes.snake import *
+from ai.states import State
 import numpy as np
 
 class AISnake(Snake):
     
-    alpha = 0.7 # Learning Rate
-    gamma = 0.8 # Discount Factor
+    alpha = 0.5 # Learning Rate
+    gamma = 0.85 # Discount Factor
     epsilon = 0.9
     is_danger = 0
     action_space = Action.actions()
-    
-    with open("ai/model/q_table.json","r") as file:
-        q_table = ModelParser.load_q_table(file)
-    
+    try:
+        with open("ai/model/q_table.json","r") as file:
+            q_table = ModelParser.load_q_table(file)
+    except FileNotFoundError as err:
+        # Initial State of the Q-Table as Fallback if file is empty    
+        q_table = {}
+        for state in State.states():
+            q_table[state] = {}
+            for action in Action.actions():
+                q_table[state][action] = 0
+          
     
     def __init__(self, start_x, start_y, block_size):
         super().__init__(start_x, start_y, block_size)
